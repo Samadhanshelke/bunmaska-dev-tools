@@ -1,0 +1,22 @@
+# Dependencies
+node_modules/
+
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Build / packaging
+dist/
+*.app/
+*.dmg
+*.tar.gz
+*.tar.zst
+*.deb
+
+# Logs & OS
+*.log
+.DS_Store
+
+# Local tooling
+.qodo/

@@ -1,0 +1,15 @@
+{
+  "name": "toolkit",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Local developer tools — free stuck ports and suggest commit messages from your diff.",
+  "scripts": {
+    "start": "bunmaska run src/main.ts",
+    "dev": "bunmaska dev",
+    "build": "bunmaska build"
+  },
+  "dependencies": {
+    "bunmaska": "^0.1.0-alpha.6"
+  }
+}

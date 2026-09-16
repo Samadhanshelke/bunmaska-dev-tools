@@ -1,0 +1,1227 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Toolkit</title>
+    <style>
+      :root {
+        --ink: #152029;
+        --muted: #5c6b76;
+        --line: rgba(21, 32, 41, 0.12);
+        --panel: rgba(255, 252, 247, 0.86);
+        --side: rgba(18, 36, 42, 0.94);
+        --side-ink: #e8f1f3;
+        --side-muted: #8aa0a8;
+        --teal: #0f4c5c;
+        --teal-soft: #1a6b7c;
+        --forest: #2f5d3a;
+        --kill: #c23b22;
+        --kill-ink: #fff8f5;
+        --ok: #1f6f5b;
+        --warn: #9a6b12;
+        --combined: #1e4d6b;
+        --shadow: 0 18px 50px rgba(21, 32, 41, 0.12);
+        --mono: "SF Mono", "Menlo", "Monaco", "Cascadia Code", ui-monospace, monospace;
+        --sans: "Avenir Next", "Segoe UI", "Helvetica Neue", sans-serif;
+        --display: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", serif;
+      }
+
+      * { box-sizing: border-box; }
+      html, body { height: 100%; }
+      body {
+        margin: 0;
+        color: var(--ink);
+        font-family: var(--sans);
+        background:
+          radial-gradient(1100px 560px at 18% -12%, rgba(26, 107, 124, 0.16), transparent 55%),
+          radial-gradient(900px 500px at 100% 0%, rgba(47, 93, 58, 0.1), transparent 48%),
+          linear-gradient(165deg, #e7eef2 0%, #f2efe6 50%, #e8e4d8 100%);
+        overflow: hidden;
+      }
+
+      .app {
+        height: 100%;
+        display: grid;
+        grid-template-columns: 212px 1fr;
+      }
+
+      .sidebar {
+        background: var(--side);
+        color: var(--side-ink);
+        display: grid;
+        grid-template-rows: auto 1fr auto;
+        padding: 22px 14px 16px;
+        gap: 18px;
+        box-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.04);
+        animation: rise 380ms ease-out both;
+      }
+
+      .side-brand {
+        padding: 0 8px;
+      }
+
+      .side-brand h1 {
+        margin: 0;
+        font-family: var(--display);
+        font-size: 1.55rem;
+        letter-spacing: -0.03em;
+        font-weight: 600;
+      }
+
+      .side-brand p {
+        margin: 6px 0 0;
+        color: var(--side-muted);
+        font-size: 0.78rem;
+        line-height: 1.35;
+      }
+
+      .nav {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      .nav button {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        width: 100%;
+        text-align: left;
+        border: 0;
+        cursor: pointer;
+        font: inherit;
+        color: var(--side-ink);
+        background: transparent;
+        border-radius: 12px;
+        padding: 12px 12px;
+        transition: background 140ms ease, transform 140ms ease;
+      }
+
+      .nav button:hover {
+        background: rgba(255, 255, 255, 0.06);
+      }
+
+      .nav button.active {
+        background: rgba(232, 241, 243, 0.12);
+      }
+
+      .nav .glyph {
+        flex: 0 0 auto;
+        width: 28px;
+        height: 28px;
+        border-radius: 8px;
+        display: grid;
+        place-items: center;
+        font-family: var(--mono);
+        font-size: 0.78rem;
+        font-weight: 700;
+        background: rgba(255, 255, 255, 0.08);
+        color: #b7d5dc;
+      }
+
+      .nav button.active .glyph.ports { background: rgba(26, 107, 124, 0.45); color: #e8f7fa; }
+      .nav button.active .glyph.commits { background: rgba(47, 93, 58, 0.5); color: #eaf6ee; }
+
+      .nav .label {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        min-width: 0;
+      }
+
+      .nav .label strong {
+        font-size: 0.92rem;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+      }
+
+      .nav .label span {
+        color: var(--side-muted);
+        font-size: 0.72rem;
+        line-height: 1.3;
+      }
+
+      .side-foot {
+        padding: 0 8px;
+        color: var(--side-muted);
+        font-size: 0.72rem;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .side-foot kbd {
+        font-family: var(--mono);
+        font-size: 0.7rem;
+        padding: 2px 5px;
+        border-radius: 4px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        background: rgba(255, 255, 255, 0.05);
+      }
+
+      .quit {
+        height: 34px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        background: transparent;
+        color: var(--side-muted);
+        border-radius: 8px;
+        font: inherit;
+        cursor: pointer;
+      }
+
+      .quit:hover { color: var(--side-ink); border-color: rgba(255, 255, 255, 0.22); }
+
+      .main {
+        min-width: 0;
+        min-height: 0;
+        padding: 18px 20px 14px;
+        display: grid;
+      }
+
+      .view {
+        display: none;
+        min-height: 0;
+        animation: rise 320ms ease-out both;
+      }
+
+      .view.active {
+        display: grid;
+        grid-template-rows: auto auto auto 1fr;
+        gap: 12px;
+      }
+
+      .view-ports.active {
+        grid-template-rows: auto 1fr auto;
+      }
+
+      .source-pill {
+        flex: 0 0 auto;
+        padding: 6px 10px;
+        border-radius: 999px;
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        background: rgba(154, 107, 18, 0.14);
+        color: #8a5608;
+        white-space: nowrap;
+      }
+
+      .source-pill.ai {
+        background: rgba(47, 93, 58, 0.14);
+        color: var(--forest);
+      }
+
+      .ai-bar {
+        display: none;
+        grid-template-columns: 1fr auto;
+        gap: 12px;
+        align-items: center;
+        padding: 12px 14px;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: rgba(47, 93, 58, 0.06);
+        box-shadow: var(--shadow);
+      }
+
+      .ai-bar.open { display: grid; }
+
+      .ai-bar-text {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        min-width: 0;
+        font-size: 0.84rem;
+      }
+
+      .ai-bar-text span { color: var(--muted); font-size: 0.78rem; }
+
+      .ai-bar-actions {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+
+      .ai-bar-actions input {
+        width: min(280px, 40vw);
+        height: 36px;
+        padding: 0 10px;
+        border-radius: 8px;
+        border: 1px solid var(--line);
+        background: #fff;
+        font-family: var(--mono);
+        font-size: 0.82rem;
+        color: var(--ink);
+      }
+
+      @media (max-width: 900px) {
+        .ai-bar { grid-template-columns: 1fr; }
+        .commit-layout { grid-template-columns: 1fr; }
+      }
+
+      header.tool-head {
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+        gap: 14px;
+      }
+
+      .brand h2 {
+        margin: 0;
+        font-size: 1.85rem;
+        letter-spacing: -0.04em;
+        line-height: 1;
+        color: var(--teal);
+        font-family: var(--sans);
+        font-weight: 700;
+      }
+
+      .view-commits .brand h2 { color: var(--forest); font-family: var(--display); font-weight: 600; }
+
+      .brand p {
+        margin: 6px 0 0;
+        color: var(--muted);
+        font-size: 0.92rem;
+      }
+
+      .toolbar {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+
+      .search {
+        width: min(260px, 36vw);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 0 12px;
+        height: 40px;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: var(--panel);
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(10px);
+      }
+
+      .search input {
+        width: 100%;
+        border: 0;
+        outline: 0;
+        background: transparent;
+        font: inherit;
+        color: var(--ink);
+      }
+
+      .search input::placeholder { color: #8a97a1; }
+
+      button { font: inherit; border: 0; cursor: pointer; }
+
+      .btn {
+        height: 40px;
+        padding: 0 14px;
+        border-radius: 10px;
+        border: 1px solid var(--line);
+        background: var(--panel);
+        color: var(--ink);
+        box-shadow: var(--shadow);
+        transition: transform 140ms ease, background 140ms ease, border-color 140ms ease;
+      }
+
+      .btn:hover { transform: translateY(-1px); border-color: rgba(15, 76, 92, 0.28); }
+      .btn:active { transform: none; }
+      .btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+
+      .btn-primary { background: var(--teal); border-color: transparent; color: #f3fafb; }
+      .btn-primary:hover { background: var(--teal-soft); }
+      .view-commits .btn-primary { background: var(--forest); }
+      .view-commits .btn-primary:hover { background: #3d7349; }
+
+      .btn-ghost {
+        height: 32px;
+        padding: 0 10px;
+        border-radius: 8px;
+        border: 1px solid var(--line);
+        background: transparent;
+        color: var(--muted);
+        font-size: 0.84rem;
+      }
+
+      .btn-ghost:hover { color: var(--ink); border-color: rgba(21, 32, 41, 0.22); }
+
+      .panel {
+        min-height: 0;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        background: var(--panel);
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(12px);
+        overflow: hidden;
+        display: grid;
+        grid-template-rows: auto 1fr;
+      }
+
+      .meta, .panel-head {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 12px 16px;
+        border-bottom: 1px solid var(--line);
+        color: var(--muted);
+        font-size: 0.86rem;
+      }
+
+      .panel-head {
+        font-size: 0.78rem;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        align-items: baseline;
+      }
+
+      .panel-head span {
+        color: var(--ink);
+        font-weight: 600;
+        text-transform: none;
+        letter-spacing: 0;
+        font-size: 0.92rem;
+      }
+
+      .meta strong { color: var(--ink); font-weight: 600; }
+
+      .table-wrap, .scroll { overflow: auto; min-height: 0; }
+      .scroll { padding: 10px; }
+
+      table { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
+
+      th {
+        position: sticky;
+        top: 0;
+        z-index: 1;
+        text-align: left;
+        padding: 12px 16px;
+        background: rgba(244, 239, 230, 0.94);
+        color: var(--muted);
+        font-size: 0.75rem;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        border-bottom: 1px solid var(--line);
+      }
+
+      td {
+        padding: 12px 16px;
+        border-bottom: 1px solid rgba(21, 32, 41, 0.06);
+        vertical-align: middle;
+      }
+
+      tr { animation: rowIn 280ms ease both; }
+      tr:hover td { background: rgba(15, 76, 92, 0.04); }
+
+      .port {
+        font-family: var(--mono);
+        font-weight: 600;
+        font-size: 1.02rem;
+        color: var(--teal);
+      }
+
+      .pill {
+        display: inline-block;
+        margin-left: 8px;
+        padding: 2px 8px;
+        border-radius: 999px;
+        background: rgba(15, 76, 92, 0.1);
+        color: var(--teal);
+        font-size: 0.72rem;
+        font-weight: 600;
+      }
+
+      .mono { font-family: var(--mono); font-size: 0.86rem; }
+      .muted { color: var(--muted); }
+
+      .actions { display: flex; gap: 8px; justify-content: flex-end; }
+
+      .btn-kill {
+        height: 32px;
+        padding: 0 12px;
+        border-radius: 8px;
+        background: var(--kill);
+        color: var(--kill-ink);
+        font-size: 0.84rem;
+        font-weight: 600;
+      }
+
+      .btn-kill:hover { filter: brightness(1.05); }
+      .btn-kill:disabled, .btn-ghost:disabled { opacity: 0.4; cursor: not-allowed; filter: none; }
+
+      .empty {
+        height: 100%;
+        min-height: 240px;
+        display: grid;
+        place-items: center;
+        text-align: center;
+        padding: 36px;
+        color: var(--muted);
+      }
+
+      .empty h3 {
+        margin: 0 0 8px;
+        color: var(--ink);
+        font-size: 1.28rem;
+        letter-spacing: -0.02em;
+      }
+
+      .foot {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        color: var(--muted);
+        font-size: 0.78rem;
+      }
+
+      .repo-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 12px 14px;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: var(--panel);
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(10px);
+      }
+
+      .repo-meta { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+      .repo-path {
+        font-family: var(--mono);
+        font-size: 0.86rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .repo-sub { color: var(--muted); font-size: 0.8rem; }
+      .repo-sub strong { color: var(--ink); font-weight: 600; }
+
+      .commit-layout {
+        min-height: 0;
+        display: grid;
+        grid-template-columns: minmax(220px, 0.9fr) minmax(300px, 1.2fr);
+        gap: 12px;
+      }
+
+      @media (max-width: 900px) {
+        .commit-layout { grid-template-columns: 1fr; }
+      }
+
+      .group {
+        padding: 12px;
+        border-radius: 12px;
+      }
+      .group + .group { margin-top: 6px; }
+      .group:hover { background: rgba(47, 93, 58, 0.05); }
+      .group-top {
+        display: flex;
+        justify-content: space-between;
+        gap: 8px;
+        align-items: center;
+        margin-bottom: 8px;
+      }
+      .group-label { font-weight: 600; }
+      .delta { font-family: var(--mono); font-size: 0.78rem; color: var(--muted); }
+      .delta .add { color: var(--ok); }
+      .delta .del { color: var(--kill); }
+      .file {
+        display: flex;
+        gap: 8px;
+        align-items: baseline;
+        font-family: var(--mono);
+        font-size: 0.78rem;
+        padding: 3px 0;
+        color: var(--muted);
+      }
+      .file .status { width: 1.6rem; color: var(--forest); font-weight: 600; }
+      .file .path { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+      .suggestion {
+        padding: 14px;
+        border-radius: 14px;
+        border: 1px solid var(--line);
+        background: rgba(255, 255, 255, 0.55);
+        animation: rowIn 280ms ease both;
+      }
+      .suggestion + .suggestion { margin-top: 10px; }
+      .suggestion.combined {
+        border-color: rgba(30, 77, 107, 0.28);
+        background: rgba(30, 77, 107, 0.06);
+      }
+      .sug-top {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        align-items: center;
+        margin-bottom: 8px;
+      }
+      .badge {
+        display: inline-flex;
+        padding: 3px 9px;
+        border-radius: 999px;
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        background: rgba(47, 93, 58, 0.12);
+        color: var(--forest);
+      }
+      .badge.combined { background: rgba(30, 77, 107, 0.14); color: var(--combined); }
+      .badge.separate { background: rgba(196, 122, 18, 0.14); color: #8a5608; }
+      .message {
+        font-family: var(--mono);
+        font-size: 0.96rem;
+        line-height: 1.45;
+        word-break: break-word;
+      }
+      .rationale { margin: 8px 0 0; color: var(--muted); font-size: 0.84rem; line-height: 1.4; }
+      .hint {
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.78rem;
+        line-height: 1.4;
+      }
+
+      .toast {
+        position: fixed;
+        right: 24px;
+        bottom: 24px;
+        min-width: 220px;
+        max-width: min(360px, calc(100vw - 40px));
+        padding: 12px 14px;
+        border-radius: 12px;
+        background: var(--ink);
+        color: #f5f7f8;
+        box-shadow: 0 16px 40px rgba(21, 32, 41, 0.28);
+        transform: translateY(20px);
+        opacity: 0;
+        pointer-events: none;
+        transition: transform 220ms ease, opacity 220ms ease;
+        z-index: 20;
+      }
+      .toast.show { transform: translateY(0); opacity: 1; }
+      .toast.ok { background: var(--ok); }
+      .toast.err { background: var(--kill); }
+
+      .confirm {
+        position: fixed;
+        inset: 0;
+        background: rgba(21, 32, 41, 0.35);
+        display: none;
+        place-items: center;
+        z-index: 30;
+        padding: 20px;
+      }
+      .confirm.open { display: grid; animation: fade 160ms ease; }
+      .confirm-card {
+        width: min(420px, 100%);
+        background: #fffdf9;
+        border-radius: 16px;
+        padding: 22px;
+        box-shadow: var(--shadow);
+        border: 1px solid var(--line);
+      }
+      .confirm-card h3 { margin: 0 0 8px; font-size: 1.2rem; letter-spacing: -0.02em; }
+      .confirm-card p { margin: 0 0 18px; color: var(--muted); line-height: 1.45; }
+      .confirm-actions { display: flex; justify-content: flex-end; gap: 8px; }
+
+      @keyframes rise {
+        from { opacity: 0; transform: translateY(8px); }
+        to { opacity: 1; transform: none; }
+      }
+      @keyframes rowIn {
+        from { opacity: 0; transform: translateY(4px); }
+        to { opacity: 1; transform: none; }
+      }
+      @keyframes fade {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <aside class="sidebar">
+        <div class="side-brand">
+          <h1>Toolkit</h1>
+          <p>Local utilities. Ports stay offline; commits can use free Groq AI.</p>
+        </div>
+        <nav class="nav">
+          <button type="button" data-tool="ports" class="active" id="navPorts">
+            <span class="glyph ports">P</span>
+            <span class="label">
+              <strong>Portkill</strong>
+              <span>Free stuck TCP ports</span>
+            </span>
+          </button>
+          <button type="button" data-tool="commits" id="navCommits">
+            <span class="glyph commits">C</span>
+            <span class="label">
+              <strong>Commit Suggest</strong>
+              <span>Messages from your diff</span>
+            </span>
+          </button>
+        </nav>
+        <div class="side-foot">
+          <div>Summon <kbd id="shortcut">⌘⇧T</kbd></div>
+          <button class="quit" id="quit" type="button">Quit</button>
+        </div>
+      </aside>
+
+      <div class="main">
+        <!-- Portkill -->
+        <section class="view view-ports active" id="viewPorts">
+          <header class="tool-head">
+            <div class="brand">
+              <h2>Portkill</h2>
+              <p>Who holds each port — and whether it’s Mac-only or open to the network.</p>
+            </div>
+            <div class="toolbar">
+              <label class="search">
+                <span aria-hidden="true">⌕</span>
+                <input id="filter" type="search" placeholder="Filter port, process, pid…" />
+              </label>
+              <button class="btn" id="auto" type="button">Auto: off</button>
+              <button class="btn btn-primary" id="refresh" type="button">Refresh</button>
+            </div>
+          </header>
+
+          <section class="panel">
+            <div class="meta">
+              <div><strong id="count">0</strong> listeners</div>
+              <div>Updated <span id="updated">—</span></div>
+            </div>
+            <div class="table-wrap" id="tableWrap">
+              <div class="empty"><div><h3>Scanning ports…</h3><p>Listening TCP sockets will show up here.</p></div></div>
+            </div>
+          </section>
+
+          <div class="foot">
+            <div>Uses <span class="mono">lsof</span> + signals · <span class="mono">Anywhere</span> = open on all network interfaces</div>
+          </div>
+        </section>
+
+        <!-- Commit Suggest -->
+        <section class="view view-commits" id="viewCommits">
+          <header class="tool-head">
+            <div class="brand">
+              <h2>Commit Suggest</h2>
+              <p id="commitTagline">AI via free Groq API — falls back to heuristics without a key.</p>
+            </div>
+            <div class="toolbar">
+              <button class="btn" id="aiSettings" type="button">AI key</button>
+              <button class="btn" id="pick" type="button">Open repo</button>
+              <button class="btn btn-primary" id="scan" type="button" disabled>Scan changes</button>
+            </div>
+          </header>
+
+          <div class="repo-bar">
+            <div class="repo-meta">
+              <div class="repo-path" id="repoPath">No repository selected</div>
+              <div class="repo-sub" id="repoSub">Pick a git repo to cluster the working tree.</div>
+            </div>
+            <div class="source-pill" id="sourcePill">Heuristic</div>
+          </div>
+
+          <div class="ai-bar" id="aiBar">
+            <div class="ai-bar-text">
+              <strong>Groq API key</strong>
+              <span id="aiStatus">Not set — get a free key at console.groq.com/keys</span>
+            </div>
+            <div class="ai-bar-actions">
+              <input
+                id="groqKey"
+                type="text"
+                inputmode="text"
+                placeholder="Paste Groq key (gsk_…)"
+                autocomplete="off"
+                autocorrect="off"
+                autocapitalize="off"
+                spellcheck="false"
+              />
+              <button class="btn" id="pasteKey" type="button" title="Paste from clipboard">Paste</button>
+              <button class="btn btn-primary" id="saveKey" type="button">Save</button>
+              <button class="btn" id="clearKey" type="button">Clear</button>
+            </div>
+          </div>
+
+          <div class="commit-layout">
+            <section class="panel">
+              <div class="panel-head"><span>Detected changes</span><div id="groupCount">—</div></div>
+              <div class="scroll" id="groups">
+                <div class="empty"><div><h3>Waiting for a scan</h3><p>Open a repo with local changes.</p></div></div>
+              </div>
+            </section>
+            <section class="panel">
+              <div class="panel-head"><span>Commit message</span><div id="sugCount">—</div></div>
+              <div class="scroll" id="suggestions">
+                <div class="empty"><div><h3>No message yet</h3><p>Scan a dirty tree to summarize what changed.</p></div></div>
+              </div>
+            </section>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <div class="confirm" id="confirm" role="dialog" aria-modal="true">
+      <div class="confirm-card">
+        <h3 id="confirmTitle">Kill process?</h3>
+        <p id="confirmBody"></p>
+        <div class="confirm-actions">
+          <button class="btn" id="confirmCancel" type="button">Cancel</button>
+          <button class="btn-kill" id="confirmOk" type="button">Kill</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const shell = { tool: 'ports' };
+      const ports = { list: [], filter: '', auto: false, timer: null, pending: null };
+      const commits = { repo: null, result: null, hasGroqKey: false, aiBarOpen: false };
+
+      const els = {
+        navPorts: document.getElementById('navPorts'),
+        navCommits: document.getElementById('navCommits'),
+        viewPorts: document.getElementById('viewPorts'),
+        viewCommits: document.getElementById('viewCommits'),
+        quit: document.getElementById('quit'),
+        shortcut: document.getElementById('shortcut'),
+        toast: document.getElementById('toast'),
+        // ports
+        tableWrap: document.getElementById('tableWrap'),
+        count: document.getElementById('count'),
+        updated: document.getElementById('updated'),
+        filter: document.getElementById('filter'),
+        refresh: document.getElementById('refresh'),
+        auto: document.getElementById('auto'),
+        confirm: document.getElementById('confirm'),
+        confirmTitle: document.getElementById('confirmTitle'),
+        confirmBody: document.getElementById('confirmBody'),
+        confirmCancel: document.getElementById('confirmCancel'),
+        confirmOk: document.getElementById('confirmOk'),
+        // commits
+        pick: document.getElementById('pick'),
+        scan: document.getElementById('scan'),
+        aiSettings: document.getElementById('aiSettings'),
+        aiBar: document.getElementById('aiBar'),
+        aiStatus: document.getElementById('aiStatus'),
+        groqKey: document.getElementById('groqKey'),
+        pasteKey: document.getElementById('pasteKey'),
+        saveKey: document.getElementById('saveKey'),
+        clearKey: document.getElementById('clearKey'),
+        sourcePill: document.getElementById('sourcePill'),
+        repoPath: document.getElementById('repoPath'),
+        repoSub: document.getElementById('repoSub'),
+        groups: document.getElementById('groups'),
+        suggestions: document.getElementById('suggestions'),
+        groupCount: document.getElementById('groupCount'),
+        sugCount: document.getElementById('sugCount'),
+      };
+
+      let toastTimer = null;
+      function toast(message, kind = '') {
+        els.toast.textContent = message;
+        els.toast.className = 'toast show' + (kind ? ' ' + kind : '');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => { els.toast.className = 'toast'; }, 2200);
+      }
+
+      function escapeHtml(s) {
+        return String(s)
+          .replaceAll('&', '&amp;')
+          .replaceAll('<', '&lt;')
+          .replaceAll('>', '&gt;')
+          .replaceAll('"', '&quot;');
+      }
+
+      function setTool(tool) {
+        if (tool !== 'ports' && tool !== 'commits') return;
+        shell.tool = tool;
+        els.navPorts.classList.toggle('active', tool === 'ports');
+        els.navCommits.classList.toggle('active', tool === 'commits');
+        els.viewPorts.classList.toggle('active', tool === 'ports');
+        els.viewCommits.classList.toggle('active', tool === 'commits');
+        window.api.setTool(tool);
+        if (tool === 'ports' && !ports.list.length) refreshPorts();
+        if (tool === 'commits' && commits.repo && !commits.result) scanRepo();
+      }
+
+      // —— Ports ——
+      function formatTime(d) {
+        return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      }
+
+      function matches(row, q) {
+        if (!q) return true;
+        const hay = [row.port, row.pid, row.name, row.command, row.address, row.user, row.service || '']
+          .join(' ')
+          .toLowerCase();
+        return hay.includes(q);
+      }
+
+      function renderPorts() {
+        const q = ports.filter.trim().toLowerCase();
+        const rows = ports.list.filter((p) => matches(p, q));
+        els.count.textContent = String(rows.length);
+        if (!rows.length) {
+          els.tableWrap.innerHTML =
+            '<div class="empty"><div><h3>' +
+            (ports.list.length ? 'No matches' : 'Nothing listening') +
+            '</h3><p>' +
+            (ports.list.length ? 'Try another filter.' : 'Your ports are clear. Nice.') +
+            '</p></div></div>';
+          return;
+        }
+        const table = document.createElement('table');
+        table.innerHTML =
+          '<thead><tr><th>Port</th><th>Process</th><th>PID</th><th>Reachable</th><th></th></tr></thead><tbody></tbody>';
+        const tbody = table.querySelector('tbody');
+        rows.forEach((row, i) => {
+          const tr = document.createElement('tr');
+          tr.style.animationDelay = Math.min(i, 12) * 18 + 'ms';
+          const blocked = row.protected || row.self;
+          tr.innerHTML =
+            '<td><span class="port">' + row.port + '</span>' +
+            (row.service ? '<span class="pill">' + escapeHtml(row.service) + '</span>' : '') +
+            '</td><td><div>' + escapeHtml(row.name) + '</div><div class="muted mono">' +
+            escapeHtml(row.command) + '</div></td><td class="mono">' + row.pid +
+            '</td><td class="mono muted">' + escapeHtml(row.address) +
+            '</td><td><div class="actions">' +
+            '<button class="btn-ghost" data-act="copy"' + (blocked ? ' disabled' : '') + '>Copy</button>' +
+            '<button class="btn-ghost" data-act="force"' + (blocked ? ' disabled' : '') + '>Force</button>' +
+            '<button class="btn-kill" data-act="kill"' + (blocked ? ' disabled' : '') + '>Kill</button>' +
+            '</div></td>';
+          tr.querySelectorAll('button').forEach((btn) => {
+            btn.addEventListener('click', () => onPortAction(btn.dataset.act, row));
+          });
+          tbody.appendChild(tr);
+        });
+        els.tableWrap.innerHTML = '';
+        els.tableWrap.appendChild(table);
+      }
+
+      async function refreshPorts() {
+        els.refresh.disabled = true;
+        try {
+          ports.list = await window.api.listPorts();
+          els.updated.textContent = formatTime(new Date());
+          renderPorts();
+        } catch (err) {
+          toast(err?.message || String(err), 'err');
+        } finally {
+          els.refresh.disabled = false;
+        }
+      }
+
+      function askConfirm(row, force) {
+        ports.pending = { row, force };
+        els.confirmTitle.textContent = force ? 'Force kill process?' : 'Kill process?';
+        els.confirmBody.textContent = force
+          ? 'Send SIGKILL to ' + row.name + ' (pid ' + row.pid + ') on port ' + row.port + '.'
+          : 'Send SIGTERM to ' + row.name + ' (pid ' + row.pid + ') on port ' + row.port + '.';
+        els.confirmOk.textContent = force ? 'Force kill' : 'Kill';
+        els.confirm.classList.add('open');
+      }
+
+      async function onPortAction(act, row) {
+        if (act === 'copy') {
+          const cmd = await window.api.killCommand(row.pid, false);
+          try {
+            await navigator.clipboard.writeText(cmd);
+            toast('Copied: ' + cmd, 'ok');
+          } catch {
+            toast(cmd);
+          }
+          return;
+        }
+        if (act === 'kill') askConfirm(row, false);
+        if (act === 'force') askConfirm(row, true);
+      }
+
+      async function confirmKill() {
+        const pending = ports.pending;
+        ports.pending = null;
+        els.confirm.classList.remove('open');
+        if (!pending) return;
+        const result = await window.api.kill(pending.row.pid, pending.force);
+        if (result.ok) {
+          toast('Killed pid ' + pending.row.pid + (pending.force ? ' (SIGKILL)' : ''), 'ok');
+          setTimeout(refreshPorts, 350);
+        } else {
+          toast(result.error || 'Kill failed', 'err');
+        }
+      }
+
+      // —— Commits ——
+      function statusLetter(status) {
+        if (status === 'added' || status === 'untracked') return 'A';
+        if (status === 'deleted') return 'D';
+        if (status === 'renamed') return 'R';
+        if (status === 'modified') return 'M';
+        return '?';
+      }
+
+      function setRepo(path) {
+        commits.repo = path;
+        els.scan.disabled = !path;
+        els.repoPath.textContent = path || 'No repository selected';
+        if (!path) els.repoSub.textContent = 'Pick a git repo to cluster the working tree.';
+      }
+
+      function applyPrefs(prefs) {
+        commits.hasGroqKey = Boolean(prefs?.hasGroqKey);
+        if (commits.hasGroqKey) {
+          els.aiStatus.textContent = 'Saved locally as ' + (prefs.groqKeyMasked || '••••') + ' — free Groq llama model';
+          els.sourcePill.textContent = 'AI ready';
+          els.sourcePill.classList.add('ai');
+        } else {
+          els.aiStatus.textContent = 'Not set — free key at console.groq.com/keys';
+          els.sourcePill.textContent = 'Heuristic';
+          els.sourcePill.classList.remove('ai');
+        }
+        if (!commits.hasGroqKey) {
+          commits.aiBarOpen = true;
+          els.aiBar.classList.add('open');
+        }
+      }
+
+      function setSourcePill(result) {
+        if (result.source === 'ai') {
+          els.sourcePill.textContent = 'Groq AI';
+          els.sourcePill.classList.add('ai');
+        } else {
+          els.sourcePill.textContent = 'Heuristic';
+          els.sourcePill.classList.remove('ai');
+        }
+      }
+
+      function renderEmpty(target, title, body) {
+        target.innerHTML =
+          '<div class="empty"><div><h3>' + escapeHtml(title) + '</h3><p>' + escapeHtml(body) + '</p></div></div>';
+      }
+
+      function renderGroups(groups) {
+        if (!groups.length) {
+          els.groupCount.textContent = '0';
+          renderEmpty(els.groups, 'Clean working tree', 'Nothing to commit right now.');
+          return;
+        }
+        els.groupCount.textContent = String(groups.length);
+        els.groups.innerHTML = '';
+        groups.forEach((g) => {
+          const el = document.createElement('div');
+          el.className = 'group';
+          el.innerHTML =
+            '<div class="group-top"><div class="group-label">' + escapeHtml(g.label) +
+            '</div><div class="delta"><span class="add">+' + g.additions +
+            '</span> / <span class="del">−' + g.deletions + '</span></div></div>' +
+            g.files.map((f) =>
+              '<div class="file"><span class="status">' + statusLetter(f.status) +
+              '</span><span class="path" title="' + escapeHtml(f.path) + '">' +
+              escapeHtml(f.path) + '</span></div>'
+            ).join('');
+          els.groups.appendChild(el);
+        });
+      }
+
+      function kindLabel(kind) {
+        return 'Suggested';
+      }
+
+      function renderSuggestions(suggestions) {
+        if (!suggestions.length) {
+          els.sugCount.textContent = '0';
+          renderEmpty(els.suggestions, 'No suggestions', 'Make a change, then scan again.');
+          return;
+        }
+        els.sugCount.textContent = String(suggestions.length);
+        els.suggestions.innerHTML = '';
+        suggestions.forEach((s, i) => {
+          const el = document.createElement('div');
+          el.className = 'suggestion' + (s.kind === 'combined' ? ' combined' : '');
+          el.style.animationDelay = Math.min(i, 10) * 30 + 'ms';
+          el.innerHTML =
+            '<div class="sug-top"><span class="badge ' + escapeHtml(s.kind) + '">' +
+            kindLabel(s.kind) + ' · ' + escapeHtml(s.type) +
+            '</span><button class="btn-ghost" data-copy type="button">Copy</button></div>' +
+            '<div class="message">' + escapeHtml(s.message) + '</div>' +
+            '<p class="rationale">' + escapeHtml(s.rationale) + '</p>';
+          el.querySelector('[data-copy]').addEventListener('click', async () => {
+            try {
+              await window.api.copy(s.message);
+              toast('Copied commit message', 'ok');
+            } catch (err) {
+              toast(err?.message || String(err), 'err');
+            }
+          });
+          els.suggestions.appendChild(el);
+        });
+      }
+
+      async function scanRepo() {
+        if (!commits.repo) return;
+        els.scan.disabled = true;
+        els.scan.textContent = commits.hasGroqKey ? 'Asking Groq…' : 'Scanning…';
+        try {
+          const result = await window.api.scan(commits.repo);
+          commits.result = result;
+          setRepo(result.root);
+          setSourcePill(result);
+          els.repoSub.innerHTML =
+            '<strong>' + escapeHtml(result.branch) + '</strong> · ' +
+            result.fileCount + ' changed file' + (result.fileCount === 1 ? '' : 's') +
+            ' · ' + result.groups.length + ' logical change' +
+            (result.groups.length === 1 ? '' : 's') +
+            (result.source === 'ai' ? ' · AI' : ' · heuristic');
+          renderGroups(result.groups);
+          renderSuggestions(result.suggestions);
+          if (!result.fileCount) toast('Working tree is clean', 'ok');
+          else if (result.source === 'ai') toast('Suggestions from Groq AI', 'ok');
+          else if (result.warning) toast(result.warning, 'err');
+        } catch (err) {
+          toast(err?.message || String(err), 'err');
+        } finally {
+          els.scan.textContent = 'Scan changes';
+          els.scan.disabled = !commits.repo;
+        }
+      }
+
+      // —— Wiring ——
+      els.navPorts.addEventListener('click', () => setTool('ports'));
+      els.navCommits.addEventListener('click', () => setTool('commits'));
+      els.quit.addEventListener('click', () => window.api.quit());
+
+      async function pasteIntoKeyField() {
+        try {
+          let text = '';
+          if (window.api.readClipboard) {
+            text = await window.api.readClipboard();
+          }
+          if (!text && navigator.clipboard?.readText) {
+            text = await navigator.clipboard.readText();
+          }
+          text = String(text || '').trim();
+          if (!text) {
+            toast('Clipboard is empty', 'err');
+            return;
+          }
+          els.groqKey.value = text;
+          els.groqKey.focus();
+          els.groqKey.select();
+          toast('Key pasted — click Save', 'ok');
+        } catch (err) {
+          toast(err?.message || 'Could not read clipboard', 'err');
+        }
+      }
+
+      els.aiSettings.addEventListener('click', () => {
+        commits.aiBarOpen = !commits.aiBarOpen;
+        els.aiBar.classList.toggle('open', commits.aiBarOpen);
+        if (commits.aiBarOpen) {
+          setTimeout(() => els.groqKey.focus(), 50);
+        }
+      });
+
+      els.pasteKey.addEventListener('click', pasteIntoKeyField);
+
+      // Fallback if native Cmd/Ctrl+V still does not reach the webview.
+      els.groqKey.addEventListener('keydown', async (e) => {
+        const mod = e.metaKey || e.ctrlKey;
+        if (mod && e.key.toLowerCase() === 'v') {
+          e.preventDefault();
+          await pasteIntoKeyField();
+        }
+      });
+
+      els.saveKey.addEventListener('click', async () => {
+        const key = els.groqKey.value.trim();
+        if (!key) {
+          toast('Paste your Groq API key first', 'err');
+          return;
+        }
+        try {
+          const prefs = await window.api.setGroqKey(key);
+          els.groqKey.value = '';
+          applyPrefs(prefs);
+          toast('Groq API key saved', 'ok');
+          if (commits.repo) await scanRepo();
+        } catch (err) {
+          toast(err?.message || String(err), 'err');
+        }
+      });
+
+      els.clearKey.addEventListener('click', async () => {
+        try {
+          const prefs = await window.api.clearGroqKey();
+          els.groqKey.value = '';
+          applyPrefs(prefs);
+          toast('API key cleared — using heuristics', 'ok');
+        } catch (err) {
+          toast(err?.message || String(err), 'err');
+        }
+      });
+
+      els.filter.addEventListener('input', () => {
+        ports.filter = els.filter.value;
+        renderPorts();
+      });
+      els.refresh.addEventListener('click', refreshPorts);
+      els.auto.addEventListener('click', () => {
+        ports.auto = !ports.auto;
+        els.auto.textContent = ports.auto ? 'Auto: on' : 'Auto: off';
+        if (ports.timer) clearInterval(ports.timer);
+        ports.timer = ports.auto ? setInterval(refreshPorts, 3000) : null;
+      });
+      els.confirmCancel.addEventListener('click', () => {
+        ports.pending = null;
+        els.confirm.classList.remove('open');
+      });
+      els.confirmOk.addEventListener('click', confirmKill);
+      els.confirm.addEventListener('click', (e) => {
+        if (e.target === els.confirm) {
+          ports.pending = null;
+          els.confirm.classList.remove('open');
+        }
+      });
+
+      els.pick.addEventListener('click', async () => {
+        try {
+          const result = await window.api.pickRepo();
+          if (result.canceled) return;
+          setRepo(result.path);
+          await scanRepo();
+        } catch (err) {
+          toast(err?.message || String(err), 'err');
+        }
+      });
+      els.scan.addEventListener('click', scanRepo);
+
+      window.api.platform().then((p) => {
+        els.shortcut.textContent = p === 'darwin' ? '⌘⇧T' : 'Ctrl⇧T';
+      });
+      if (window.api.onPortsRefresh) window.api.onPortsRefresh(refreshPorts);
+      if (window.api.onRepoRefresh) window.api.onRepoRefresh(() => { if (commits.repo) scanRepo(); });
+      if (window.api.onNavigate) window.api.onNavigate(setTool);
+
+      window.api.prefs().then(async (prefs) => {
+        applyPrefs(prefs);
+        if (prefs?.lastRepo) setRepo(prefs.lastRepo);
+        setTool(prefs?.lastTool === 'commits' ? 'commits' : 'ports');
+        if (prefs?.lastTool === 'commits' && prefs.lastRepo) await scanRepo();
+      });
+    </script>
+  </body>
+</html>

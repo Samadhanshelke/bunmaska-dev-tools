@@ -1,0 +1,8 @@
+node_modules/
+dist/
+*.app/
+*.dmg
+*.tar.gz
+*.tar.zst
+*.deb
+*.log
